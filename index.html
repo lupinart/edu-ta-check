@@ -1,0 +1,62 @@
+<!doctype html>
+<html lang="zh-Hant">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>教資案簽到單檢查</title>
+<meta name="description" content="1151 數位教資遠距計畫 TA 簽到單送出前檢查：時數、金額、月保門檻、工作地點與勞基法工時。">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@600;700&display=swap">
+<link rel="stylesheet" href="styles.css?v=20260930b">
+<script>
+  // 先套用記住的主題，避免畫面閃一下
+  try { const t = localStorage.getItem("theme"); if (t === "dark" || t === "light") document.documentElement.dataset.theme = t; } catch (e) {}
+</script>
+</head>
+<body>
+<button class="theme-toggle" id="theme-toggle" type="button" aria-label="切換深色模式">
+  <svg class="i-moon" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><path d="M20 14.5A8 8 0 0 1 9.5 4a8 8 0 1 0 10.5 10.5Z" fill="currentColor"/></svg>
+  <svg class="i-sun" viewBox="0 0 24 24" width="20" height="20" aria-hidden="true"><circle cx="12" cy="12" r="4.5" fill="currentColor"/><g stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M12 2v2.5M12 19.5V22M2 12h2.5M19.5 12H22M4.9 4.9l1.8 1.8M17.3 17.3l1.8 1.8M4.9 19.1l1.8-1.8M17.3 6.7l1.8-1.8"/></g></svg>
+</button>
+<div class="wrap">
+
+<section id="v-check" class="stack">
+  <header class="stack" style="gap:6px">
+    <div class="eyebrow">1151 數位教資遠距計畫</div>
+    <h2>TA 簽到單送出前檢查</h2>
+    <p class="lede">給擔任教學助理（TA）的同學使用。上傳這個月的簽到單，先幫你找出算錯、漏填的地方。時薪 196 元，採月保制度，每個月工讀金要超過 6,000 元。<br><b>網頁只能幫忙抓常見錯誤，不代表一定正確，送出前請自己再仔細看一次。</b></p>
+  </header>
+
+  <label class="drop" id="drop" for="file-input">
+    <span class="big" id="drop-title">上傳簽到單（點這裡選檔，或把檔案拖進來）</span>
+    <span class="privacy">支援 .docx、.odt 電子檔（附件 6-5 臨時工資簽到單）。舊版 .doc、PDF、照片沒辦法自動檢查。</span>
+    <input id="file-input" type="file" accept=".docx,.odt" multiple hidden>
+  </label>
+  <p class="privacy">檔案只在你的瀏覽器裡讀取，不會上傳到任何地方。</p>
+
+  <div id="sheets" class="stack"></div>
+
+  <div class="dl">
+    <span class="big">還沒有簽到單？先下載空白表</span>
+    <div class="files"><div class="file"><span class="t">附件 6-5　臨時工資簽到單<span class="fmt">DOCX</span></span><span class="d">每月一張。計畫名稱的「○○○(老師姓名)」要改成授課老師姓名。</span><a href="files/timesheet.docx" download="附件6-5_臨時工資簽到單.docx">下載</a></div></div>
+  </div>
+
+  <div class="panel" id="check-empty">
+    <h3>會檢查這些地方</h3>
+    <ul class="clean">
+      <li>每一列的時數，跟起訖時間算出來的一樣嗎；工作酬金有沒有照時薪 196 元計算，合計時數與金額對不對</li>
+      <li>月保門檻：這個月的工讀金有沒有超過 6,000 元（至少 31 小時）</li>
+      <li>表頭月份、計畫名稱的老師姓名、執行單位、計畫編號，以及姓名、學系、學號、電話有沒有填；範例列有沒有刪掉</li>
+      <li>每天是否超過 8 小時、每週是否超過 40 小時、連續 4 小時有沒有休息 30 分鐘、時段有沒有重疊</li>
+      <li>有沒有排在週六日、國定假日或學校公告的休假日；有沒有在早上 7 點前或晚上 8 點後工作</li>
+      <li>工作地點有沒有寫到「校內大樓名稱＋教室號碼」（例如電學大樓 301；只寫校內、教室、研究室會被退回）、工作內容有沒有填</li>
+      <li>外籍生每週是否超過 20 小時</li>
+    </ul>
+  </div>
+</section>
+
+</div>
+<script type="module" src="js/app.js?v=20260930b"></script>
+</body>
+</html>
