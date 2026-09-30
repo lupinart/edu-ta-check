@@ -1,12 +1,11 @@
 // 教資案（數位教資遠距）TA 簽到單檢查：共通規則沿用 rules.js，這裡補上本案特有的比對
-import { checkTimesheet } from "./rules.js?v=20260930e";
+import { checkTimesheet } from "./rules.js?v=20260930f";
 
 export const RATE = 196;
 // 月保：每月工讀金要超過 6,000 元（時薪 196 元，約 31 小時）
 export const MONTHLY_MIN_PAY = 6000;
-// 計畫名稱開頭與計畫編號：教資案有自己的編號，跟創新應用（A82，115609782）不同
+// 計畫名稱開頭；計畫編號每位老師不同，只擋創新應用（A82，115609782）的編號，其餘黃框請學生跟老師確認
 export const PLAN_NAME_PREFIX = "1151數位教資遠距";
-export const PLAN_NUMBER = ""; // 待 Lupin 提供；有值之後會比對
 const OTHER_PLAN = { name: /A82|雲端知識/, number: "115609782" };
 // 計畫期間：到 12 月；起始月份待確認，先以 9 月起算
 export const PERIOD_MONTHS = [9, 10, 11, 12];
@@ -103,8 +102,8 @@ export function checkEduTA(sheet, options = {}) {
   if (!String(sheet.unit ?? "").trim()) extra.push(issue("UNIT_MISSING", "error", "執行單位沒有填，請問老師要填哪個單位。", null, "unit"));
   if (!planNumber) {
     extra.push(issue("PLAN_NUMBER_MISSING", "error", "計畫編號沒有填，請問老師。", null, "planNumber"));
-  } else if (PLAN_NUMBER && planNumber !== OTHER_PLAN.number && planNumber !== PLAN_NUMBER) {
-    extra.push(issue("PLAN_NUMBER_WRONG", "error", `計畫編號應為 ${PLAN_NUMBER}。`, null, "planNumber"));
+  } else if (planNumber !== OTHER_PLAN.number) {
+    extra.push(issue("PLAN_NUMBER_CONFIRM", "review", "計畫編號每位老師不同，請跟老師確認有沒有寫對。", null, "planNumber"));
   }
 
   if (samples.length) {
