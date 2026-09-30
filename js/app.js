@@ -1,6 +1,6 @@
-import { parseTimesheet } from "./parse.js?v=20260930d";
-import { checkEduTA, MONTHLY_MIN_PAY, mdw } from "./check.js?v=20260930d";
-import { annotateRenderedDocx, buildAnnotations } from "./annotations.js?v=20260930d";
+import { parseTimesheet } from "./parse.js?v=20260930e";
+import { checkEduTA, MONTHLY_MIN_PAY } from "./check.js?v=20260930e";
+import { annotateRenderedDocx, buildAnnotations } from "./annotations.js?v=20260930e";
 
 const $ = (s) => document.querySelector(s);
 const esc = (v) => String(v ?? "").replace(/[&<>"]/g, (c) => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;" })[c]);
@@ -42,13 +42,7 @@ async function addFiles(fileList) {
   renderSheets();
 }
 
-// 列號後面帶上那一列的日期與星期，例如「第 3 列 10/5(一)」；列數太多時只列號碼
-function rowsLabel(ids, entries = []) {
-  if (!ids?.length) return "";
-  const dateOf = (id) => entries.find((e) => e.id === id)?.date;
-  if (ids.length > 4 || !ids.every(dateOf)) return `第 ${ids.join("、")} 列：`;
-  return `${ids.map((id) => `第 ${id} 列 ${mdw(dateOf(id))}`).join("、")}：`;
-}
+function rowsLabel(ids) { return ids?.length ? `第 ${ids.join("、")} 列：` : ""; }
 
 function renderSheet(item) {
   if (item.error) {
@@ -77,7 +71,7 @@ function renderSheet(item) {
       <span>${pay > MONTHLY_MIN_PAY ? "月保門檻：已超過 6,000 元" : "月保門檻：未超過 6,000 元"}</span>
     </div>
     ${notes.length
-      ? `<ul class="issues">${notes.map((i) => `<li><button class="num" data-sev="${i.severity}" data-focus="${item.id}:${i.number}" title="在簽到單上找到這一處">${i.number}</button><span class="pill ${i.severity === "error" ? "no" : "warn"}">${LABEL[i.severity]}</span><span>${rowsLabel(i.entryIds, s.entries)}${esc(i.message)}</span></li>`).join("")}</ul>`
+      ? `<ul class="issues">${notes.map((i) => `<li><button class="num" data-sev="${i.severity}" data-focus="${item.id}:${i.number}" title="在簽到單上找到這一處">${i.number}</button><span class="pill ${i.severity === "error" ? "no" : "warn"}">${LABEL[i.severity]}</span><span>${rowsLabel(i.entryIds)}${esc(i.message)}</span></li>`).join("")}</ul>`
       : `<div class="allgood">沒有發現需要修正的地方。網頁只能幫忙抓常見錯誤，送出前請再對著簽到單自己看一次。</div>`}
     <figure class="doc-fig"><figcaption>簽到單上有編號框線的地方，就是要改或要確認的位置</figcaption><div class="doc-view" id="doc-${item.id}"></div></figure>
     <div class="decl"><b>送出前請自己確認：</b>${r.declarations.map((d, n) => `<label><input type="checkbox" id="d-${item.id}-${n}"> ${esc(d.label)}</label>`).join("")}</div>
@@ -96,7 +90,7 @@ function loadScript(src) {
   return new Promise((ok, fail) => { const s = document.createElement("script"); s.src = src; s.onload = ok; s.onerror = fail; document.head.append(s); });
 }
 function docxPreview() {
-  previewLib ??= loadScript("js/vendor/jszip.min.js?v=20260930d").then(() => loadScript("js/vendor/docx-preview.min.js?v=20260930d")).then(() => window.docx);
+  previewLib ??= loadScript("js/vendor/jszip.min.js?v=20260930e").then(() => loadScript("js/vendor/docx-preview.min.js?v=20260930e")).then(() => window.docx);
   return previewLib;
 }
 function fallbackPaper(s) {
@@ -105,7 +99,7 @@ function fallbackPaper(s) {
     <h4>計畫案兼任教學助理／工讀生簽到單</h4>
     <div class="paper-meta">${[["計畫名稱", s.planName], ["執行單位", s.unit], ["計畫編號", s.planNumber], ["姓名", s.name], ["學系", s.department], ["學號", s.studentId], ["聯絡電話", s.phone]].map(([k, v]) => `<p>${k}：${esc(v)}</p>`).join("")}</div>
     <table><tr>${["編號", "工作日期", "開始", "結束", "工作時數", "工作酬金", "工作地點", "工作內容", "簽章"].map((v) => cell(v, "th")).join("")}</tr>
-    ${s.entries.map((e) => `<tr>${[e.id, e.date ? mdw(e.date) : "", e.start, e.end, e.hours, e.pay, e.location, e.workContent, e.signature].map((v) => cell(v)).join("")}</tr>`).join("")}</table>
+    ${s.entries.map((e) => `<tr>${[e.id, e.dateText ?? e.date, e.start, e.end, e.hours, e.pay, e.location, e.workContent, e.signature].map((v) => cell(v)).join("")}</tr>`).join("")}</table>
     <p class="paper-total">計酬基準 X ${esc(s.claimedTotalHours)} 小時　金額：${esc(s.claimedTotalPay)} 元</p>
     <p>簽名：${esc(s.footerSignature)}</p>
   </div>`;
