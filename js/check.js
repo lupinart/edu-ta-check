@@ -1,9 +1,13 @@
 // 教資案（數位教資遠距）TA 簽到單檢查：共通規則沿用 rules.js，這裡補上本案特有的比對
-import { checkTimesheet } from "./rules.js?v=20260930b";
+import { checkTimesheet } from "./rules.js?v=20260930c";
 
 export const RATE = 196;
 // 月保：每月工讀金要超過 6,000 元（時薪 196 元，約 31 小時）
 export const MONTHLY_MIN_PAY = 6000;
+// 計畫名稱開頭與計畫編號：教資案有自己的編號，跟創新應用（A82，115609782）不同
+export const PLAN_NAME_PREFIX = "1151數位教資遠距";
+export const PLAN_NUMBER = ""; // 待 Lupin 提供；有值之後會比對
+const OTHER_PLAN = { name: /A82|雲端知識/, number: "115609782" };
 // 計畫期間：到 12 月；起始月份待確認，先以 9 月起算
 export const PERIOD_MONTHS = [9, 10, 11, 12];
 
@@ -86,12 +90,21 @@ export function checkEduTA(sheet, options = {}) {
   }
   const extra = [];
 
-  const planName = String(sheet.planName ?? "");
-  if (!planName.trim() || /○|〇|老師姓名/.test(planName)) {
+  const planName = String(sheet.planName ?? "").replaceAll(/\s+/g, "");
+  const planNumber = String(sheet.planNumber ?? "").replaceAll(/\s+/g, "");
+  if (OTHER_PLAN.name.test(planName) || planNumber === OTHER_PLAN.number) {
+    extra.push(issue("WRONG_PLAN", "error", "這是創新應用補助（A82 發展雲端知識體系計畫，115609782）的名稱或編號。教資案要填教資案自己的計畫名稱與編號。", null, "planName"));
+  } else if (!planName.startsWith(PLAN_NAME_PREFIX)) {
+    extra.push(issue("PLAN_NAME_WRONG", "error", `計畫名稱應為「${PLAN_NAME_PREFIX}-老師姓名」。`, null, "planName"));
+  } else if (/○|〇|老師姓名/.test(planName) || planName.replace(/^1151數位教資遠距[-－—]?/, "") === "") {
     extra.push(issue("PLAN_TEACHER_MISSING", "error", "計畫名稱的「○○○(老師姓名)」要改成授課老師的姓名。", null, "planName"));
   }
   if (!String(sheet.unit ?? "").trim()) extra.push(issue("UNIT_MISSING", "error", "執行單位沒有填，請問老師要填哪個單位。", null, "unit"));
-  if (!String(sheet.planNumber ?? "").trim()) extra.push(issue("PLAN_NUMBER_MISSING", "error", "計畫編號沒有填，請問老師。", null, "planNumber"));
+  if (!planNumber) {
+    extra.push(issue("PLAN_NUMBER_MISSING", "error", "計畫編號沒有填，請問老師。", null, "planNumber"));
+  } else if (PLAN_NUMBER && planNumber !== OTHER_PLAN.number && planNumber !== PLAN_NUMBER) {
+    extra.push(issue("PLAN_NUMBER_WRONG", "error", `計畫編號應為 ${PLAN_NUMBER}。`, null, "planNumber"));
+  }
 
   if (samples.length) {
     extra.push(issue("SAMPLE_ROW", "error", "表單上的範例列（9/1、9:00–12:00）還在，請刪除或改成實際資料。", samples.map((e) => e.id), "date"));
