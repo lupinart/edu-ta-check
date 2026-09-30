@@ -1,5 +1,5 @@
 // 教資案（數位教資遠距）TA 簽到單檢查：共通規則沿用 rules.js，這裡補上本案特有的比對
-import { checkTimesheet } from "./rules.js?v=20260930f";
+import { checkTimesheet } from "./rules.js?v=20260930g";
 
 export const RATE = 196;
 // 月保：每月工讀金要超過 6,000 元（時薪 196 元，約 31 小時）
