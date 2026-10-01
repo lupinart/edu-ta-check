@@ -1,5 +1,5 @@
 // 教資案（數位教資遠距）TA 簽到單檢查：共通規則沿用 rules.js，這裡補上本案特有的比對
-import { checkTimesheet } from "./rules.js?v=20260930g";
+import { checkTimesheet } from "./rules.js?v=20261001a";
 
 export const RATE = 196;
 // 月保：每月工讀金要超過 6,000 元（時薪 196 元，約 31 小時）
@@ -159,6 +159,11 @@ export function checkEduTA(sheet, options = {}) {
     return s !== null && t !== null && (s < 7 * 60 || t > 20 * 60);
   });
   if (offHours.length) extra.push(issue("OFF_HOURS", "error", "有工作時間在早上 7 點以前或晚上 8 點以後，請改到正常工作時間。", offHours.map((e) => e.id), "time"));
+  const lateHours = entries.filter((e) => {
+    const t = minutes(e.end);
+    return !offHours.includes(e) && t !== null && t > 18 * 60;
+  });
+  if (lateHours.length) extra.push(issue("LATE_HOURS", "review", "工讀不建議超過晚上 6 點，請再確認是否需要排到這麼晚。", lateHours.map((e) => e.id), "time"));
 
   // 簽名一律用黃框提醒本人列印後親筆簽
   if (entries.length) extra.push(issue("SIGN_HERE", "review", "列印後，每一列的簽章欄都要本人親筆簽名（Word 裡打字的簽名不算）。", entries.map((e) => e.id), "signature"));
